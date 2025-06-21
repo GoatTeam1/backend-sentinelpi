@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: spring
+  output:
+    ansi:
+      enabled: ALWAYS
+  thymeleaf:
+    cache: false
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+  main:
+    banner-mode: "off"
+
+server:
+  port: 8081
