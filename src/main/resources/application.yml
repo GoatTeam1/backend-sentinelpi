@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: spring
+  output:
+    ansi:
+      enabled: ALWAYS
+  thymeleaf:
+    cache: false
+  data:
+    mongodb:
+      # uri: mongodb+srv://JazzoLopez:St6mGDWyz4Xfxoe6@cluster0.oahxtpe.mongodb.net/testSpring?retryWrites=true&w=majority&appName=Cluster0 
+      uri: mongodb://localhost:27017/sentinelpi
+  main:
+    banner-mode: "off"
+
+server:
+  port: 8081
