@@ -8,12 +8,7 @@ spring:
     cache: false
   data:
     mongodb:
-<<<<<<< HEAD
       uri: ${MONGODB_URI}
-=======
-      # uri: mongodb+srv://JazzoLopez:St6mGDWyz4Xfxoe6@cluster0.oahxtpe.mongodb.net/testSpring?retryWrites=true&w=majority&appName=Cluster0 
-      uri: mongodb://localhost:27017/sentinelpi
->>>>>>> 598ffacb46c60b85d01d0490757200cc48da64ec
   main:
     banner-mode: "off"
 
