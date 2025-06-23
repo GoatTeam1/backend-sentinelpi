@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class healtcheck {
-    @GetMapping("/health")
+    @GetMapping("/")
     public String healthCheck() {
-        return "Connected to SentinelPi";
+        return "Connected to SentinelPi API";
     }
 }
