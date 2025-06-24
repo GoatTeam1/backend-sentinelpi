@@ -1,11 +1,12 @@
 package com.sentinelpi.sentinelpi.exceptions;
 
-import com.sentinelpi.sentinelpi.exceptions.EmailAlreadyExistsException;
 import com.sentinelpi.sentinelpi.utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+
 
 import java.util.HashMap;
 import java.util.Map;

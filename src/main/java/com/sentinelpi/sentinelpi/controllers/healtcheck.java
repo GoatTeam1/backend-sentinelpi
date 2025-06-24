@@ -1,12 +1,15 @@
-package com.sentinelpi.sentinelpi;
+package com.sentinelpi.sentinelpi.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 public class healtcheck {
+
     @GetMapping("/health")
-    public String healthCheck() {
-        return "Connected to SentinelPi API";
+    public ResponseEntity<?> health() {
+        return ResponseEntity.ok("Servidor activo");
     }
 }
