@@ -41,11 +41,14 @@ public class JwtUtil {
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
+            System.out.println("[JwtUtil] Validación exitosa del token");
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("[JwtUtil] Error validando token: " + e.getMessage());
             return false;
         }
     }
+
 
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
