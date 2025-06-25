@@ -1,5 +1,6 @@
 package com.sentinelpi.sentinelpi.controllers;
 
+import com.sentinelpi.sentinelpi.dto.UpdateUserDto;
 import com.sentinelpi.sentinelpi.dto.UserDto;
 import com.sentinelpi.sentinelpi.models.User;
 import com.sentinelpi.sentinelpi.services.UserService;
@@ -42,7 +43,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable String id, @Valid @RequestBody UserDto dto) {
+    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable String id, @Valid @RequestBody UpdateUserDto dto) {
+        System.out.println("UpdateUser called with id: " + id);
         return userService.update(id, dto)
                 .<ResponseEntity<ApiResponse<?>>>map(user -> ResponseEntity.ok(new ApiResponse<>(user, true, HttpStatus.OK)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>("User not found", false, HttpStatus.NOT_FOUND)));

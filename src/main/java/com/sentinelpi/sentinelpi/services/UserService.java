@@ -1,9 +1,11 @@
 package com.sentinelpi.sentinelpi.services;
+import com.sentinelpi.sentinelpi.dto.UpdateUserDto;
 import com.sentinelpi.sentinelpi.dto.UserDto;
 import com.sentinelpi.sentinelpi.exceptions.EmailAlreadyExistsException;
 import com.sentinelpi.sentinelpi.models.User;
 import com.sentinelpi.sentinelpi.repositories.UserRepository;
 import com.sentinelpi.sentinelpi.utils.PasswordUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +36,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> update(String id, UserDto dto) {
+    public Optional<User> update(String id, @Valid UpdateUserDto dto) {
         return userRepository.findById(id).map(user -> {
             user.setUsername(dto.getUsername());
             user.setEmail(dto.getEmail());
