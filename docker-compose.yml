@@ -7,3 +7,5 @@ services:
       - .env
     environment:
       - MONGODB_URI=${MONGODB_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - EXPIRATION_TIME=${EXPIRATION_TIME}
