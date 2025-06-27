@@ -10,9 +10,9 @@ import java.util.Date;
 @Document(collection = "ip_info")
 public class IpInfo {
     @Id
-    private String ip;
+    private String id;
 
-    private int attackCount;
+    private String ip;
 
     private Date lastActivity;
 

@@ -2,65 +2,69 @@ package com.sentinelpi.sentinelpi.services;
 
 import com.sentinelpi.sentinelpi.dto.LoginAttempDto;
 import com.sentinelpi.sentinelpi.models.LoginAttemp;
+import com.sentinelpi.sentinelpi.repositories.AttackRepository;
 import com.sentinelpi.sentinelpi.repositories.LoginAttempRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class LoginAttempService {
+
     @Autowired
     private LoginAttempRepository loginAttempRepository;
 
-    public List<LoginAttemp> findAll(){
+    @Autowired
+    private AttackRepository attackRepository;
+
+    public List<LoginAttemp> findAll() {
         return loginAttempRepository.findAll();
     }
 
-    public Optional<LoginAttemp> findById(String id){
+    public Optional<LoginAttemp> findById(String id) {
         return loginAttempRepository.findById(id);
     }
 
-    public LoginAttemp Create(LoginAttempDto dto){
+    public LoginAttemp create(LoginAttempDto dto) {
+        if (dto.getAttackId() != null && !dto.getAttackId().isBlank()) {
+            if (!attackRepository.existsById(dto.getAttackId())) {
+                throw new IllegalArgumentException("Attack id no existe: " + dto.getAttackId());
+            }
+        }
+
         LoginAttemp loginAttemp = new LoginAttemp();
-        loginAttemp.setPassword(dto.getPassword());
         loginAttemp.setUsername(dto.getUsername());
+        loginAttemp.setPassword(dto.getPassword());
+        loginAttemp.setTimestamp(dto.getTimestamp());
+        loginAttemp.setAttackId(dto.getAttackId());
+
         return loginAttempRepository.save(loginAttemp);
     }
-    /*
-    public User create(UserDto dto) {
-        if(userRepository.existsByEmail(dto.getEmail())){
-            throw new EmailAlreadyExistsException(dto.getEmail());
-        }
-        User user = new User();
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
-        user.setPassword(PasswordUtil.hashPassword(dto.getPassword()));
-        return userRepository.save(user);
-    }
 
-    public Optional<User> update(String id, @Valid UpdateUserDto dto) {
-        return userRepository.findById(id).map(user -> {
-            user.setUsername(dto.getUsername());
-            user.setEmail(dto.getEmail());
-
-            if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-                user.setPassword(PasswordUtil.hashPassword(dto.getPassword()));
+    public Optional<LoginAttemp> update(String id, LoginAttempDto dto) {
+        return loginAttempRepository.findById(id).map(existing -> {
+            if (dto.getAttackId() != null && !dto.getAttackId().isBlank()) {
+                if (!attackRepository.existsById(dto.getAttackId())) {
+                    throw new IllegalArgumentException("Attack id no existe: " + dto.getAttackId());
+                }
+                existing.setAttackId(dto.getAttackId());
             }
 
-            return userRepository.save(user);
+            existing.setUsername(dto.getUsername());
+            existing.setPassword(dto.getPassword());
+            existing.setTimestamp(dto.getTimestamp());
+
+            return loginAttempRepository.save(existing);
         });
     }
 
-
     public boolean delete(String id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+        if (loginAttempRepository.existsById(id)) {
+            loginAttempRepository.deleteById(id);
             return true;
         }
         return false;
     }
-    *
-    *
-    * */
 }
-
