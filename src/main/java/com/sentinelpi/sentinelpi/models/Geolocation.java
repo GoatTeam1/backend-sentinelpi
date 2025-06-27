@@ -9,5 +9,4 @@ public class Geolocation {
 
     private String city; // Ciudad
 
-    // Getters y setters...
 }
