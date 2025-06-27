@@ -1,6 +1,6 @@
 spring:
-  profiles:
-    active: local
+#  profiles:
+#    active: local
   application:
     name: spring
   output:
@@ -8,6 +8,7 @@ spring:
       enabled: ALWAYS
   thymeleaf:
     cache: false
+    check-template-location: false
   data:
     mongodb:
       uri: ${MONGODB_URI}
@@ -34,3 +35,6 @@ security:
     token:
       secret-key: ${SECRET_KEY}
       expire-length: ${EXPIRATION_TIME}
+  user:
+    name:
+    password:
