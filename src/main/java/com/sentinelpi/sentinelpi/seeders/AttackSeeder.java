@@ -23,6 +23,7 @@ public class AttackSeeder {
             attack.setIp(faker.internet().ipV4Address());
             attack.setPort(faker.number().numberBetween(100, 9999));
             attack.setProtocol(faker.options().option("TCP", "UDP", "ICMP"));
+            attack.setOs(faker.options().option("Windows", "Linux", "macOS", "Android", "iOS"));
             attack.setTimestamp(faker.date().past(365, java.util.concurrent.TimeUnit.DAYS));
             attack.setPayload(faker.lorem().sentence());
             attack.setTools(Arrays.asList(faker.hacker().verb(), faker.hacker().noun()));
