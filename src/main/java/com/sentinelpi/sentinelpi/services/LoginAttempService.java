@@ -5,6 +5,8 @@ import com.sentinelpi.sentinelpi.models.LoginAttemp;
 import com.sentinelpi.sentinelpi.repositories.AttackRepository;
 import com.sentinelpi.sentinelpi.repositories.LoginAttempRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +21,8 @@ public class LoginAttempService {
     @Autowired
     private AttackRepository attackRepository;
 
-    public List<LoginAttemp> findAll() {
-        return loginAttempRepository.findAll();
+    public Page<LoginAttemp> findAll(Pageable pageable) {
+        return loginAttempRepository.findAll(pageable);
     }
 
     public Optional<LoginAttemp> findById(String id) {

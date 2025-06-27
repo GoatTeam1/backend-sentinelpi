@@ -6,6 +6,9 @@ import com.sentinelpi.sentinelpi.services.LoginAttempService;
 import com.sentinelpi.sentinelpi.utils.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +23,18 @@ public class LoginAttempController {
     private LoginAttempService loginAttempService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getAll() {
-        List<LoginAttemp> attempts = loginAttempService.findAll();
+    public ResponseEntity<ApiResponse<?>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        if (size > 1000) size = 1000;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LoginAttemp> attempts = loginAttempService.findAll(pageable);
+
         if (attempts.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>("No hay intentos de login registrados", false, HttpStatus.NOT_FOUND));
         }
-        return ResponseEntity.ok(new ApiResponse<>(attempts, true, HttpStatus.OK));
+        return ResponseEntity.ok(new ApiResponse<>(attempts.getContent(), true, HttpStatus.OK));
     }
 
     @GetMapping("/{id}")

@@ -6,6 +6,10 @@ import com.sentinelpi.sentinelpi.services.IpInfoService;
 import com.sentinelpi.sentinelpi.utils.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +24,23 @@ public class IpInfoController {
     private IpInfoService ipInfoService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getAll() {
-        List<IpInfo> list = ipInfoService.findAll();
-        if (list.isEmpty()) {
+    public ResponseEntity<ApiResponse<?>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+
+        if (size > 1000) size = 1000;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "lastActivity");
+        Page<IpInfo> infos = ipInfoService.findAll(pageable);
+
+        if (infos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>("No hay registros de IP", false, HttpStatus.NOT_FOUND));
+                    .body(new ApiResponse<>("No hay información de IP registrada", false, HttpStatus.NOT_FOUND));
         }
-        return ResponseEntity.ok(new ApiResponse<>(list, true, HttpStatus.OK));
+
+        return ResponseEntity.ok(new ApiResponse<>(infos.getContent(), true, HttpStatus.OK));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> getById(@PathVariable String id) {

@@ -3,6 +3,8 @@ package com.sentinelpi.sentinelpi.services;
 import com.sentinelpi.sentinelpi.dto.AttackDto;
 import com.sentinelpi.sentinelpi.models.Attack;
 import com.sentinelpi.sentinelpi.repositories.AttackRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public class AttackService {
         this.attackRepository = attackRepository;
     }
 
-    public List<Attack> findAll() {
-        return attackRepository.findAll();
+    public Page<Attack> findAll(Pageable pageable) {
+        return attackRepository.findAll(pageable);
     }
 
     public Optional<Attack> findById(String id) {

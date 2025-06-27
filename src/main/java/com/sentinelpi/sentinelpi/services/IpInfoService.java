@@ -4,6 +4,8 @@ import com.sentinelpi.sentinelpi.dto.IpInfoDto;
 import com.sentinelpi.sentinelpi.models.IpInfo;
 import com.sentinelpi.sentinelpi.repositories.IpInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +17,10 @@ public class IpInfoService {
     @Autowired
     private IpInfoRepository ipInfoRepository;
 
-    public List<IpInfo> findAll() {
-        return ipInfoRepository.findAll();
+    public Page<IpInfo> findAll(Pageable pageable) {
+        return ipInfoRepository.findAll(pageable);
     }
+
 
     public Optional<IpInfo> findById(String id) {
         return ipInfoRepository.findById(id);
