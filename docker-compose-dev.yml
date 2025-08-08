@@ -1,0 +1,84 @@
+####version: Se usa la version 3.9 de docker-compose para hacer uso del healthcheck
+####services: Dentro de services se indican los nombres de los contenedores a crear (Nota: Deben de estar correctamente indentados)
+####restart: Sirve para indicar cuando debe de ser reiniciado el docker
+####depens_on: Se especifica que este docker hace uso de los servicios de un docker externo y debe ser construido despues de la construcciónn de dicho docker 
+####build: Se indica que este docker va a usar un Dockerfile para construir el docker (Dentro de Dockerfile se especifica la imagen a usar y que caracteristicas extras requiere el docker)
+####volumes: Son usados para conectar una ruta del docker a una del anfitrion para diferentes motivos
+####image: Se especifica que se hara uso de una imagen ya construida y no es necesario una configuracion 
+####enviroment: Se especifican configuraciones para la imagen a usar 
+
+version: '3.9'
+services:    
+
+  mongodb:
+    image: mongo:7.0
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: sentinelpi
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #Configuracion para el docker "backend"
+  backend:
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    depends_on:
+      - mongodb
+    restart: always
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - EXPIRATION_TIME=${EXPIRATION_TIME}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app     # Monta tu código local en el contenedor
+    ports:
+      - "8080:8081"
+    
+  
+
+  #Configuracion para el docker "frontend"
+  frontend:
+    #Este docker sera construido en base a un archivo Dockerfile ubicado en la raiz de la carpeta "/frontend""
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_OPTIONS=--max_old_space_size=4096
+    volumes:
+      #Se especifica un volumen para que los cambios en el anfitrion sean reflejados tambien en la ubicacion del proyecto en docker
+      - ./frontend:/usr/local/apps/myapp/dev
+      #Se especifica un volumen para que los node_modules no choquen entre si
+      - exclude:/usr/local/apps/myapp/dev/node_modules/
+    ports:
+      - "3000:4200"
+
+  #Configuracion para el docker "nginx" este se encargara de hacer "vivir" el back y el front en un mismo sitio
+  nginx:
+    #Se especifica que este docker hara uso del docker "backend" y "frontend" asi que debe de esperar su construcción
+    depends_on:
+      - frontend
+      - backend
+    #Este docker debe de reciniciarse si hay un error o un reincio en el host
+    restart: always
+    #Se construira en base a un Dockerfile ubicado en la raiz de la carpeta "/nginx" (Dentro de .config viene la configuracion usando el docker "frontend y backend")
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    #Se enruta el puerto en el que corre nginx al 3050 del anfitrion
+    ports:
+      - "3050:80"
+
+volumes:
+  #Estos son volumenes nombrados que son usados en la construccion de los dockers anteriores
+  exclude:
+  mongo-data:

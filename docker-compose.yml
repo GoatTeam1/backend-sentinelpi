@@ -1,11 +1,122 @@
+version: '3.9'
 services:
-  springapp:
-    build: .
-    ports:
-      - ${SERVER_PORT}:8081
+
+  #Configuracion para el docker de "redis"
+  redis:
+    image: redis:7.4-rc1
+    restart: always
+    command: redis-server --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    
+
+  #Configuracion para el docker "backend"
+  backend:
+    #Se especifica que el docker debe de reiniciarse si ocurre algun error o un reinicio en el host
+    restart: always
+    #Este docker hace uso del docker "database" por ende se especifica que debe de ser construido despues de este 
+    depends_on:
+      - database
+    build:
+      #Se usara el Dockerfile ubicado en la raiz de la carpeta "/backend"
+      context: ./backend
+      dockerfile: Dockerfile
+      #Se agregan variables de entorno
+      args:
+        - PORT_SERVER= ${PORT_SERVER}
+        - SECRET_KEY= ${SECRET_KEY}
+        - POSTGRES_USER= ${POSTGRES_USER}
+        - POSTGRES_PASSWORD= ${POSTGRES_PASSWORD}
+        - POSTGRES_DB= ${POSTGRES_DB}
+        - POSTGRES_HOST= ${POSTGRES_HOST}
+        - POSTGRES_PORT= ${POSTGRES_PORT}
+        - NODEMAILER_HOST= ${NODEMAILER_HOST}
+        - NODEMAILER_PORT= ${NODEMAILER_PORT}
+        - NODEMAILER_USER= ${NODEMAILER_USER}
+        - NODEMAILER_PASSWORD= ${NODEMAILER_PASSWORD}
+        - EMAIL_ADMIN= ${EMAIL_ADMIN}
+        - APP_URL= ${APP_URL}
+        - APP_PORT= ${APP_PORT}
+        - REDIS_HOST= ${REDIS_HOST}
+        - REDIS_PORT= ${REDIS_PORT}
+        - REDIS_PASSWORD= ${REDIS_PASSWORD}
+
     env_file:
       - .env
+    volumes:
+      #Este volumen sirve para que los node_modules no choquen entre si 
+      - ignore:/usr/local/apps/myapp/dev/node_modules/
+
+  #Configuracion para el docker "database"
+  database:
+    #Se usa la imagen de postgres mas acual a dia de hoy (22/05/2024)
+    image: postgres:16.3
+    #Se especifica que el docker debe de reiniciarse si ocurre algun error o un reinicio en el host
+    restart: always
+    #Las credenciales estan en el archivo .env
     environment:
-      - MONGODB_URI=${MONGODB_URI}
-      - SECRET_KEY=${SECRET_KEY}
-      - EXPIRATION_TIME=${EXPIRATION_TIME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: America/Mexico_City
+    # TODO: Preguntar si se debe de exponer un puerto para ver la bd de produccion
+    volumes:
+    #Este es un volumen nombrado, sirve para la persistencia de los datos de la base de datos
+      - postgres-data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+  #Configuracion para el docker "frontend"
+  frontend:
+    #Este docker sera construido en base a un archivo Dockerfile ubicado en la raiz de la carpeta "/frontend""
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_OPTIONS=--max_old_space_size=4096
+    volumes:
+      #Se especifica un volumen para que los node_modules no choquen entre si
+      - exclude:/usr/local/apps/myapp/dev/node_modules/
+
+  #Configuracion para el docker "nginx" este se encargara de hacer "vivir" el back y el front en un mismo sitio
+  nginx:
+    #Se especifica que este docker hara uso del docker "backend" y "frontend" asi que debe de esperar su construcción
+    depends_on:
+      - backend
+      - frontend
+      - scraperSeeder
+    #Este docker debe de reciniciarse si hay un error o un reincio en el host
+    restart: always
+    #Se construira en base a un Dockerfile ubicado en la raiz de la carpeta "/nginx" (Dentro de .config viene la configuracion usando el docker "frontend y backend")
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    #Se enruta el puerto en el que corre nginx al 3050 del anfitrion
+    ports:
+      - "3050:80"
+
+  #Configuracion para el docker "selenium" (Dentro de este viene toda la configuracion de un chrome para test) 
+  scraperSeeder:
+    #Se usa una imagen de selenium chrome la mas actual a la fecha de hoy
+    image: selenium/standalone-chrome:122.0
+    environment:
+      VNC_PASSWORD: ${PASSWORD_VNC_SEEDER}
+
+  scraperHistorico:
+    #Se usa una imagen de selenium chrome la mas actual a la fecha de hoy
+    image: selenium/standalone-chrome:122.0
+    environment:
+      VNC_PASSWORD: ${PASSWORD_VNC_HISTORICO}
+
+  scraperNotificacion:
+    #Se usa una imagen de selenium chrome la mas actual a la fecha de hoy
+    image: selenium/standalone-chrome:122.0
+    environment:
+      VNC_PASSWORD: ${PASSWORD_VNC_EXPEDIENTES}
+
+volumes:
+  #Estos son volumenes nombrados que son usados en la construccion de los dockers anteriores
+  postgres-data:
+  redis-data:
+  ignore:
+  exclude:
