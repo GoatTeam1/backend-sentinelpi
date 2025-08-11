@@ -30,7 +30,7 @@ public class AttackController {
         Page<Attack> attacks = attackService.findAll(pageable);
         if(attacks.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>("No hay ataques registrados", false, HttpStatus.NOT_FOUND));
+                    .body(new ApiResponse<>("No hay ataques registrados 13243", false, HttpStatus.NOT_FOUND));
         }
 
         return ResponseEntity.ok(new ApiResponse<>(attacks.getContent(), true, HttpStatus.OK));
@@ -43,7 +43,7 @@ public class AttackController {
                         ResponseEntity.ok(new ApiResponse<>(attack, true, HttpStatus.OK)))
                 .orElseGet(() ->
                         ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(new ApiResponse<>("Ataque no encontrado", false, HttpStatus.NOT_FOUND)));
+                                .body(new ApiResponse<>("Ataque no encontrado 12323454", false, HttpStatus.NOT_FOUND)));
     }
 
 

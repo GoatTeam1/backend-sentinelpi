@@ -1,18 +1,22 @@
-FROM node:22-alpine3.19
+FROM node:22-bookworm-slim
 
 ENV TZ=America/Mexico_City
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-WORKDIR /usr/local/apps/myapp
+# Carpeta de trabajo
+WORKDIR /usr/src/app
 
-COPY package.json ./
-RUN npm install && npm cache clean --force
-ENV PATH=/usr/local/myapp/node_modules/.bin:$PATH
+# Instala deps primero (cache de capas)
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
 
-
-WORKDIR /usr/local/apps/myapp/dev
-COPY ./src ./src
-
+# Variables para que el watcher funcione bien dentro de Docker/Windows
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
 ENV NODE_OPTIONS="--max_old_space_size=4096"
 
-CMD ["npm","run","start"]  
+# Expone el puerto del dev server
+EXPOSE 4200
+
+# Comando: arrancar Angular escuchando en 0.0.0.0
+CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200"]

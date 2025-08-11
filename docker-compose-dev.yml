@@ -20,7 +20,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: sentinelpi
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,18 +29,25 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: dockerfile
+      dockerfile: dockerfile   # o Dockerfile.dev si lo renombras
     depends_on:
       - mongodb
     restart: always
+    working_dir: /app
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - MONGODB_URI=${MONGODB_URI}
       - SECRET_KEY=${SECRET_KEY}
       - EXPIRATION_TIME=${EXPIRATION_TIME}
     env_file:
       - .env
+    command: ["dev.sh"]
+
     volumes:
-      - ./backend:/app     # Monta tu código local en el contenedor
+      - ./backend:/app
+      # Importante en Windows: monta tu repo Maven local para acelerar builds
+      # Cambia USERPROFILE si usas PowerShell/CMD en Windows
+      - "${USERPROFILE}\\.m2:/root/.m2"
     ports:
       - "8080:8081"
     
@@ -48,17 +55,17 @@ services:
 
   #Configuracion para el docker "frontend"
   frontend:
-    #Este docker sera construido en base a un archivo Dockerfile ubicado en la raiz de la carpeta "/frontend""
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
     environment:
       - NODE_OPTIONS=--max_old_space_size=4096
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: ["npm","run","start","--","--host","0.0.0.0","--port","4200","--poll"]
     volumes:
-      #Se especifica un volumen para que los cambios en el anfitrion sean reflejados tambien en la ubicacion del proyecto en docker
-      - ./frontend:/usr/local/apps/myapp/dev
-      #Se especifica un volumen para que los node_modules no choquen entre si
-      - exclude:/usr/local/apps/myapp/dev/node_modules/
+      - ./frontend:/usr/src/app
+      - node_modules_front:/usr/src/app/node_modules
     ports:
       - "3000:4200"
 
@@ -82,3 +89,4 @@ volumes:
   #Estos son volumenes nombrados que son usados en la construccion de los dockers anteriores
   exclude:
   mongo-data:
+  node_modules_front:

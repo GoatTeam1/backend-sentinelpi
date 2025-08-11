@@ -1,6 +1,13 @@
 spring:
 #  profiles:
 #    active: local
+  main:
+    banner-mode: "off"
+    lazy-initialization: true
+  devtools:
+    restart:
+      poll-interval: 1s
+      quiet-period: 200ms
   application:
     name: spring
   output:
@@ -12,8 +19,6 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
-  main:
-    banner-mode: "off"
 
 server:
   port: 8081

@@ -1,18 +1,12 @@
-# Imagen con Maven + JDK para desarrollo
 FROM maven:3.9.6-eclipse-temurin-17
-
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia solo los archivos necesarios para instalar dependencias primero (optimiza cache)
+COPY pom.xml .
 COPY .mvn .mvn
-COPY mvnw pom.xml ./
+COPY mvnw mvnw
+RUN ./mvnw -B -q dependency:go-offline
 
-# Descarga las dependencias (esto se cachea si no cambia el pom.xml)
-RUN ./mvnw dependency:go-offline
+COPY dev.sh /usr/local/bin/dev.sh
+RUN chmod +x /usr/local/bin/dev.sh
 
-# Copia el resto del código fuente
-COPY . .
-
-# Usa spring-boot:run en lugar de jar
-CMD ["./mvnw", "spring-boot:run"]
+# Sin CMD: compose usa dev.sh
